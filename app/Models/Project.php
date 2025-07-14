@@ -39,4 +39,19 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'manager_user_id');
     }
+
+    public function metadata()
+    {
+        return $this->hasOne(ProjectMetadata::class);
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(ProjectAssignment::class);
+    }
+
+    public function folders()
+    {
+        return $this->hasMany(ProjectFolder::class);
+    }
 }

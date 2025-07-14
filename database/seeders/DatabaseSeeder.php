@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             ProjectTypeSeeder::class,
             ProjectStatusSeeder::class,
+            UserSeeder::class,
+            FolderTemplateSeeder::class
         ]);
         // \App\Models\User::factory(10)->create();
 

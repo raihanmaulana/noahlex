@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_metadata', function (Blueprint $table) {
+        Schema::create('folder_templates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained();
-            $table->string('document_type');
-            $table->integer('revision_limit');
-            $table->foreignId('discipline')->constrained('users');
+            $table->string('name');
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->string('path');
+            $table->integer('sort_order')->nullable();
 
             $table->boolean('isDeleted')->nullable()->default(false);
             $table->integer('userId');
@@ -27,8 +27,11 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('project_metadata');
+        Schema::dropIfExists('folder_templates');
     }
 };
