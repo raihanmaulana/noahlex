@@ -19,7 +19,16 @@ return new class extends Migration
             $table->string('company_name')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('profile_image')->nullable();
+            $table->boolean('is_2fa_enabled')->default(false);
+            $table->text('google2fa_secret')->nullable();
             $table->rememberToken();
+
+            $table->boolean('isDeleted')->nullable()->default(false);
+            $table->integer('userId')->nullable();
+            $table->integer('userUpdateId')->nullable();
+            $table->string('deletedBy')->nullable();
+            $table->timestamp('deletedAt', 0)->nullable();
             $table->timestamps();
         });
     }

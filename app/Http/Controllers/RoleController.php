@@ -8,6 +8,13 @@ use App\Models\Role;
 class RoleController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('permission:view_only')->only('index');
+        $this->middleware('permission:upload_edit')->only('store');
+        $this->middleware('permission:upload_edit')->only('update');
+    }
+
     public function index()
     {
         return response()->json(Role::all());
@@ -33,7 +40,7 @@ class RoleController extends Controller
 
         $role = Role::create([
             'name' => $request->name,
-            'userId' => auth()->id(), 
+            'userId' => auth()->id(),
         ]);
 
         return response()->json($role, 201);
@@ -49,7 +56,7 @@ class RoleController extends Controller
         $role = Role::find($request->id);
         $role->update([
             'name' => $request->name,
-            'userUpdateId' => auth()->id(), 
+            'userUpdateId' => auth()->id(),
         ]);
 
         return response()->json($role);
@@ -70,5 +77,24 @@ class RoleController extends Controller
         ]);
 
         return response()->json(['message' => 'Role marked as deleted']);
+    }
+
+    public function updatePermission(Request $request)
+    {
+        $validated = $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'permission' => 'required|array',
+            'permission.*' => 'exists:permissions,id',
+        ]);
+
+        $role = Role::findOrFail($validated['role_id']);
+
+        $role->permissions()->sync($validated['permission']);
+
+        return response()->json([
+            'message' => 'Permissions updated successfully.',
+            'role_id' => $role->id,
+            'permissions' => $validated['permission'],
+        ]);
     }
 }

@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view_only')->only('index');
+        $this->middleware('permission:upload_edit')->only('store');
+        $this->middleware('permission:upload_edit')->only('update');
+    }
+
     public function index()
     {
         $projects = Project::with([
@@ -30,7 +37,6 @@ class ProjectController extends Controller
             'data' => $projects
         ]);
     }
-
 
     public function store(Request $request)
     {
@@ -125,7 +131,6 @@ class ProjectController extends Controller
         }
     }
 
-
     public function detail(Request $request)
     {
         $project = Project::with([
@@ -147,8 +152,6 @@ class ProjectController extends Controller
             'data' => $project
         ]);
     }
-
-
 
     public function update(Request $request)
     {
