@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,6 +17,10 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             ProjectTypeSeeder::class,
             ProjectStatusSeeder::class,
+            UserSeeder::class,
+            FolderTemplateSeeder::class,
+            UserNotificationPreferenceSeeder::class,
+            NotificationPreferenceMasterSeeder::class
         ]);
         // \App\Models\User::factory(10)->create();
 

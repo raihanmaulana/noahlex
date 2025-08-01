@@ -24,6 +24,9 @@ class User extends Authenticatable implements JWTSubject
         'company_name',
         'role_id',
         'password',
+        'profile_image',
+        'is_2fa_enabled',
+        'google2fa_secret',
         'userId',
         'userUpdateId',
         'deletedBy',
@@ -63,5 +66,10 @@ class User extends Authenticatable implements JWTSubject
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function permissions()
+    {
+        return $this->role ? $this->role->permissions() : collect();
     }
 }

@@ -11,24 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_metadata', function (Blueprint $table) {
+        Schema::create('project_assignment_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained();
-            $table->string('document_type');
-            $table->integer('revision_limit');
-            $table->foreignId('discipline')->constrained('users');
-
-            $table->boolean('isDeleted')->nullable()->default(false);
+            $table->string('name')->unique(); 
+            $table->text('description')->nullable(); 
+            $table->boolean('isDeleted')->default(false);
             $table->integer('userId');
             $table->integer('userUpdateId')->nullable();
             $table->string('deletedBy')->nullable();
-            $table->timestamp('deletedAt', 0)->nullable();
+            $table->timestamp('deletedAt')->nullable();
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('project_metadata');
+        Schema::dropIfExists('project_assignment_types');
     }
 };

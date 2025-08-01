@@ -11,21 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('folder_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
-            $table->foreignId('role_id')->constrained()->onDelete('cascade');
-            $table->string('company_name')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('profile_image')->nullable();
-            $table->boolean('is_2fa_enabled')->default(false);
-            $table->text('google2fa_secret')->nullable();
-            $table->rememberToken();
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->string('path');
+            $table->integer('sort_order')->nullable();
 
             $table->boolean('isDeleted')->nullable()->default(false);
-            $table->integer('userId')->nullable();
+            $table->integer('userId');
             $table->integer('userUpdateId')->nullable();
             $table->string('deletedBy')->nullable();
             $table->timestamp('deletedAt', 0)->nullable();
@@ -38,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('folder_templates');
     }
 };
