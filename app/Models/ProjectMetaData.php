@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProjectMetaData extends Model
 {
+
     protected $fillable = [
         'project_id',
         'document_type',
