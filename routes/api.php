@@ -13,6 +13,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectStatusController;
 use App\Http\Controllers\FolderTemplateController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ProjectDocumentController;
 use App\Http\Controllers\ProjectAssignmentController;
 
 /*
@@ -82,6 +83,17 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/', 'destroy');
         Route::post('/bulk-assign', 'bulkAssignUsersToProjects');
     });
+
+    //Project Document
+    Route::prefix('project-documents')->controller(ProjectDocumentController::class)->group(function () {
+        Route::get('/', 'index');             
+        Route::post('/', 'store');            
+        Route::post('/update', 'update');     
+        Route::get('/detail', 'detail');     
+        Route::delete('/', 'destroy');   
+        Route::post('/toggle-expiry', 'toggleExpiryReminder');   
+    });
+
 
     // Project Assignment
     Route::prefix('assignment-types')->controller(ProjectAssignmentController::class)->group(function () {
