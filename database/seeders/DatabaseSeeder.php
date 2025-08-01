@@ -20,7 +20,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             FolderTemplateSeeder::class,
             UserNotificationPreferenceSeeder::class,
-            NotificationPreferenceMasterSeeder::class
+            NotificationPreferenceMasterSeeder::class,
+            PermissionSeeder::class,
+            RolePermissionSeeder::class
         ]);
         // \App\Models\User::factory(10)->create();
 
