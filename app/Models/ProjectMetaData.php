@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectMetaData extends Model
+class ProjectMetadata extends Model
 {
 
     protected $fillable = [
