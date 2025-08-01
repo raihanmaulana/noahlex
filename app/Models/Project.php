@@ -42,7 +42,7 @@ class Project extends Model
 
     public function metadata()
     {
-        return $this->hasOne(ProjectMetadata::class);
+        return $this->hasOne(ProjectMetaData::class);
     }
 
     public function assignments()
