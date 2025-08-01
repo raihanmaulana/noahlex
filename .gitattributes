@@ -9,3 +9,9 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Production-specific files: always keep prod version when merging
+public/.htaccess merge=ours
+public/robots.txt merge=ours
+public/favicon.ico merge=ours
+public/index.php merge=ours
