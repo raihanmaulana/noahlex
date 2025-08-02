@@ -84,8 +84,6 @@ class ProjectDocumentController extends Controller
 
     public function store(Request $request)
     {
-        Log::info("MASUK FUNGSI STORE");
-
         DB::beginTransaction();
 
         try {
@@ -100,8 +98,6 @@ class ProjectDocumentController extends Controller
 
             $filePath = $request->file('document')->store('project_documents');
 
-            Log::info("File stored at: " . $filePath);
-
             $document = ProjectDocument::create([
                 'project_id'  => $request->project_id,
                 'name'        => $request->name,
@@ -114,8 +110,6 @@ class ProjectDocumentController extends Controller
                 'expiry_date' => now()->addDays(30),
             ]);
 
-            Log::info("Document created: ", $document->toArray());
-
             DB::commit();
 
             return response()->json([
@@ -126,8 +120,6 @@ class ProjectDocumentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('Upload Document Error:', ['error' => $e->getMessage()]);
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload document.',
@@ -135,7 +127,6 @@ class ProjectDocumentController extends Controller
             ], 500);
         }
     }
-
 
     public function update(Request $request)
     {
