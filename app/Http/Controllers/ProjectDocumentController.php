@@ -21,8 +21,8 @@ class ProjectDocumentController extends Controller
         $query = ProjectDocument::where('isDeleted', false);
 
         if ($request->filled('filename')) {
-            $mode = $request->input('filename_mode', 'contains'); // default contains
-            $value = $request->filename;
+            $mode = $request->query('filename_mode', 'contains'); // default contains
+            $value = $request->query('filename');
 
             switch (strtolower($mode)) {
                 case 'is':
@@ -53,22 +53,20 @@ class ProjectDocumentController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->query('status'));
         }
-
 
         if ($request->filled('tags')) {
-            $query->where('tags', 'like', '%' . $request->tags . '%');
+            $query->where('tags', 'like', '%' . $request->query('tags') . '%');
         }
 
-
         if ($request->filled('version')) {
-            $query->where('version', $request->version);
+            $query->where('version', $request->query('version'));
         }
 
         if ($request->filled('sort_by')) {
-            $sortField = $request->sort_by;
-            $sortOrder = $request->input('sort_order', 'asc');
+            $sortField = $request->query('sort_by');
+            $sortOrder = $request->query('sort_order', 'asc');
             $query->orderBy($sortField, $sortOrder);
         } else {
             $query->orderByDesc('created_at');
@@ -198,15 +196,14 @@ class ProjectDocumentController extends Controller
         }
     }
 
-    public function detail(Request $request)
+    public function detail($id)
     {
-        $document = ProjectDocument::where('isDeleted', false)
-            ->find($request->id);
+        $document = ProjectDocument::where('isDeleted', false)->find($id);
 
         if (!$document) {
             return response()->json([
                 'success' => false,
-                'message' => 'Document dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Document dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 

@@ -116,15 +116,14 @@ class FolderTemplateController extends Controller
         ]);
     }
 
-
-    public function detail(Request $request)
+    public function detail($id)
     {
-        $template = FolderTemplate::where('isDeleted', false)->find($request->id);
+        $template = FolderTemplate::where('isDeleted', false)->find($id);
 
         if (!$template) {
             return response()->json([
                 'success' => false,
-                'message' => 'Folder template dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Folder template dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
