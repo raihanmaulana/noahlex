@@ -20,10 +20,20 @@ class ProjectDocumentController extends Controller
 
     public function index(Request $request)
     {
-        $query = ProjectDocument::where('isDeleted', false);
+        $userId = auth()->id();
+
+        $query = ProjectDocument::where('isDeleted', false)
+            ->where(function ($q) use ($userId) {
+                $q->where('uploaded_by', $userId)
+                    ->orWhereIn('id', function ($sub) use ($userId) {
+                        $sub->select('document_id')
+                            ->from('project_document_accesses')
+                            ->where('user_id', $userId);
+                    });
+            });
 
         if ($request->filled('filename')) {
-            $mode = $request->query('filename_mode', 'contains'); // default contains
+            $mode = $request->query('filename_mode', 'contains');
             $value = $request->query('filename');
 
             switch (strtolower($mode)) {
@@ -48,7 +58,7 @@ class ProjectDocumentController extends Controller
                 case 'is not empty':
                     $query->whereNotNull('name')->where('name', '!=', '');
                     break;
-                default:
+                default: 
                     $query->where('name', 'like', '%' . $value . '%');
                     break;
             }
