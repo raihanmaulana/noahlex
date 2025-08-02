@@ -9,26 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class DocumentInvitationMail extends Mailable
+class ResetPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $documentName;
-    public $inviterName;
+    public $resetLink;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($documentName, $inviterName)
+    public function __construct($resetLink)
     {
-        $this->documentName = $documentName;
-        $this->inviterName = $inviterName;
-    }
-
-    public function build()
-    {
-        return $this->subject('You have been invited to a document')
-            ->view('emails.document_invitation');
+        $this->resetLink = $resetLink;
     }
 
     /**
@@ -37,19 +29,19 @@ class DocumentInvitationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Document Invitation Mail',
+            subject: 'Reset Password Mail',
         );
     }
 
     /**
      * Get the message content definition.
      */
-    // public function content(): Content
-    // {
-    //     return new Content(
-    //         view: 'view.name',
-    //     );
-    // }
+    public function content(): Content
+    {
+        return new Content(
+            view: 'view.name',
+        );
+    }
 
     /**
      * Get the attachments for the message.
@@ -59,5 +51,11 @@ class DocumentInvitationMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    public function build()
+    {
+        return $this->subject('Reset Your Password')
+            ->view('emails.reset_password');
     }
 }
