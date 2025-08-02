@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectDocumentController extends Controller
 {
+    //add validation
     public function __construct()
     {
         $this->middleware('permission:view_only')->only('index');
