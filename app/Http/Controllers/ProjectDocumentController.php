@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectDocumentController extends Controller
 {
+    //add validation
+    public function __construct()
+    {
+        $this->middleware('permission:view_only')->only('index');
+        $this->middleware('permission:upload_edit')->only('store');
+        $this->middleware('permission:upload_edit')->only('update');
+    }
+
     public function index(Request $request)
     {
         $query = ProjectDocument::where('isDeleted', false);
