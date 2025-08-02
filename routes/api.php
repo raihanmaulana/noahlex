@@ -87,7 +87,7 @@ Route::middleware('auth:api')->group(function () {
     //Project Document
     Route::prefix('project-documents')->controller(ProjectDocumentController::class)->group(function () {
         Route::get('/', 'index');             
-        Route::post('/', 'store');            
+        Route::post('/store', 'store');            
         Route::post('/update', 'update');     
         Route::get('/{id}', 'detail');     
         Route::delete('/', 'destroy');   

@@ -82,54 +82,10 @@ class ProjectDocumentController extends Controller
         ]);
     }
 
-    // public function store(Request $request)
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $request->validate([
-    //             'project_id' => 'required|exists:projects,id',
-    //             'name'       => 'required|string',
-    //             'status'     => 'required|string',
-    //             'tags'       => 'nullable|array',
-    //             'version'    => 'nullable|string',
-    //             'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
-    //         ]);
-
-    //         $filePath = $request->file('document')->store('project_documents');
-
-    //         $document = ProjectDocument::create([
-    //             'project_id'  => $request->project_id,
-    //             'name'        => $request->name,
-    //             'file_path'   => $filePath,
-    //             'status'      => $request->status,
-    //             'tags'        => $request->tags ? json_encode($request->tags) : null,
-    //             'version'     => $request->version,
-    //             'uploaded_by' => auth()->id(),
-    //             'userId'      => auth()->id(),
-    //             'expiry_date' => now()->addDays(30),
-    //         ]);
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Document uploaded successfully.',
-    //             'data'    => $document
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed to upload document.',
-    //             'error'   => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function store(Request $request)
     {
+        Log::info("MASUK FUNGSI STORE");
+
         DB::beginTransaction();
 
         try {
@@ -142,7 +98,9 @@ class ProjectDocumentController extends Controller
                 'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
             ]);
 
-            $filePath = $request->file('document')->store('project_documents', 'public');
+            $filePath = $request->file('document')->store('project_documents');
+
+            Log::info("File stored at: " . $filePath);
 
             $document = ProjectDocument::create([
                 'project_id'  => $request->project_id,
@@ -156,10 +114,7 @@ class ProjectDocumentController extends Controller
                 'expiry_date' => now()->addDays(30),
             ]);
 
-            // Tambahkan debug disini
-            if (!$document) {
-                throw new \Exception("ProjectDocument create returned null");
-            }
+            Log::info("Document created: ", $document->toArray());
 
             DB::commit();
 
