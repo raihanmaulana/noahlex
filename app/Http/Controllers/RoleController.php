@@ -20,11 +20,10 @@ class RoleController extends Controller
         return response()->json(Role::all());
     }
 
-    public function detail(Request $request)
+    public function detail($id)
     {
-        $request->validate(['id' => 'required|integer']);
+        $role = Role::find($id);
 
-        $role = Role::find($request->id);
         if (!$role) {
             return response()->json(['message' => 'Role not found'], 404);
         }
