@@ -10,10 +10,11 @@ class ProjectDocument extends Model
         'project_id',
         'name',
         'file_path',
-        'status',
+        'status_id',
         'tags',
         'version',
         'uploaded_by',
+        'expiry_date',
         'isDeleted',
         'userId',
         'userUpdateId',
@@ -33,5 +34,10 @@ class ProjectDocument extends Model
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(ProjectDocumentStatus::class, 'status_id');
     }
 }

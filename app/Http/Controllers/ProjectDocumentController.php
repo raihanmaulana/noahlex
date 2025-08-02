@@ -58,7 +58,7 @@ class ProjectDocumentController extends Controller
                 case 'is not empty':
                     $query->whereNotNull('name')->where('name', '!=', '');
                     break;
-                default: 
+                default:
                     $query->where('name', 'like', '%' . $value . '%');
                     break;
             }
@@ -100,7 +100,7 @@ class ProjectDocumentController extends Controller
             $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'name'       => 'required|string',
-                'status'     => 'required|string',
+                'status_id'  => 'required|integer',
                 'tags'       => 'nullable|array',
                 'version'    => 'nullable|string',
                 'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
@@ -112,7 +112,7 @@ class ProjectDocumentController extends Controller
                 'project_id'  => $request->project_id,
                 'name'        => $request->name,
                 'file_path'   => $filePath,
-                'status'      => $request->status,
+                'status_id'   => $request->status_id,
                 'tags'        => $request->tags ? json_encode($request->tags) : null,
                 'version'     => $request->version,
                 'uploaded_by' => auth()->id(),
@@ -276,6 +276,62 @@ class ProjectDocumentController extends Controller
             'success' => true,
             'message' => 'Expiry reminder updated successfully.',
             'data' => $document
+        ]);
+    }
+
+    public function approveDocument(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:project_documents,id'
+        ]);
+
+        $user = auth()->user();
+
+        if (!in_array($user->role_id, [1, 2])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to approve documents.'
+            ], 403);
+        }
+
+        $document = ProjectDocument::where('isDeleted', false)->findOrFail($request->id);
+
+        $document->update([
+            'status' => 'Approved',
+            'userUpdateId' => $user->id
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Document: {$document->name} approved"
+        ]);
+    }
+
+    public function rejectDocument(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:project_documents,id'
+        ]);
+
+        $user = auth()->user();
+
+        if (!in_array($user->role_id, [1, 2])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to reject documents.'
+            ], 403);
+        }
+
+        $document = ProjectDocument::where('isDeleted', false)->findOrFail($request->id);
+
+        $document->update([
+            'status' => 'Rejected',
+            'userUpdateId' => $user->id
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Document: {$document->name} rejected"
         ]);
     }
 }

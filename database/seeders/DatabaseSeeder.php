@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             UserNotificationPreferenceSeeder::class,
             NotificationPreferenceMasterSeeder::class,
             PermissionSeeder::class,
-            RolePermissionSeeder::class
+            RolePermissionSeeder::class,
+            ProjectDocumentStatusSeeder::class
         ]);
         // \App\Models\User::factory(10)->create();
 

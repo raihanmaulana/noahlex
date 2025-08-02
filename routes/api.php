@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\HelpRequestController;
 use App\Http\Controllers\ProjectTypeController;
@@ -43,6 +44,11 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    //Dashboard
+    Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
+        Route::get('/', 'index');
+    });
 
     // Roles
     Route::prefix('roles')->controller(RoleController::class)->group(function () {
@@ -88,12 +94,14 @@ Route::middleware('auth:api')->group(function () {
 
     //Project Document
     Route::prefix('project-documents')->controller(ProjectDocumentController::class)->group(function () {
-        Route::get('/', 'index');             
-        Route::post('/store', 'store');            
-        Route::post('/update', 'update');     
-        Route::get('/{id}', 'detail');     
-        Route::delete('/', 'destroy');   
-        Route::post('/toggle-expiry', 'toggleExpiryReminder');   
+        Route::get('/', 'index');
+        Route::post('/store', 'store');
+        Route::post('/update', 'update');
+        Route::get('/{id}', 'detail');
+        Route::delete('/', 'destroy');
+        Route::post('/toggle-expiry', 'toggleExpiryReminder');
+        Route::post('/approve', 'approveDocument');
+        Route::post('/reject', 'rejectDocument');
     });
 
     //Project Document Comment
