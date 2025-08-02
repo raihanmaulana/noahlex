@@ -131,19 +131,19 @@ class ProjectController extends Controller
         }
     }
 
-    public function detail(Request $request)
+    public function detail($id)
     {
         $project = Project::with([
             'metadata.disciplineUser',
             'assignments.user',
             'assignments.role',
             'folders'
-        ])->where('isDeleted', false)->find($request->id);
+        ])->where('isDeleted', false)->find($id);
 
         if (!$project) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Project dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
@@ -152,6 +152,7 @@ class ProjectController extends Controller
             'data' => $project
         ]);
     }
+
 
     public function update(Request $request)
     {

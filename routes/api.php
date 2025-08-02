@@ -46,7 +46,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('roles')->controller(RoleController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
-        Route::get('/detail', 'detail');
+        Route::get('/{id}',  'detail');
         Route::put('/', 'update');
         Route::delete('/', 'destroy');
         Route::post('/update-permission', 'updatePermission');
@@ -56,12 +56,12 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
-        Route::post('/detail', 'detail');
+        Route::get('/{id}', 'detail');
         Route::put('/', 'update');
         Route::delete('/', 'destroy');
-        Route::get('/template/download', [UserController::class, 'downloadTemplate']);
-        Route::post('/preview-import', [UserController::class, 'previewImport']);
-        Route::post('/import', [UserController::class, 'importUsers']);
+        Route::get('/template/download',  'downloadTemplate');
+        Route::post('/preview-import',  'previewImport');
+        Route::post('/import',  'importUsers');
     });
 
     //Account
@@ -78,7 +78,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('projects')->controller(ProjectController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
-        Route::get('/detail', 'detail');
+        Route::get('/{id}', 'detail');
         Route::put('/', 'update');
         Route::delete('/', 'destroy');
         Route::post('/bulk-assign', 'bulkAssignUsersToProjects');
@@ -89,7 +89,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/', 'index');             
         Route::post('/', 'store');            
         Route::post('/update', 'update');     
-        Route::get('/detail', 'detail');     
+        Route::get('/{id}', 'detail');     
         Route::delete('/', 'destroy');   
         Route::post('/toggle-expiry', 'toggleExpiryReminder');   
     });
@@ -104,35 +104,35 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('project-types')->controller(ProjectTypeController::class)->group(function () {
         Route::get('/',  'index');
         Route::post('/',  'store');
-        Route::get('/detail',  'detail');
+        Route::get('/{id}',  'detail');
         Route::put('/',  'update');
         Route::delete('/',  'destroy');
     });
 
     // Project Status
-    Route::prefix('project-statuses')->group(function () {
-        Route::get('/', [ProjectStatusController::class, 'index']);
-        Route::post('/', [ProjectStatusController::class, 'store']);
-        Route::get('/detail', [ProjectStatusController::class, 'detail']);
-        Route::put('/', [ProjectStatusController::class, 'update']);
-        Route::delete('/', [ProjectStatusController::class, 'destroy']);
+    Route::prefix('project-statuses')->controller(ProjectStatusController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::get('/{id}', 'detail');
+        Route::put('/', 'update');
+        Route::delete('/', 'destroy');
     });
 
     // Folder Template
-    Route::prefix('folder-templates')->group(function () {
-        Route::get('/', [FolderTemplateController::class, 'index']);
-        Route::post('/', [FolderTemplateController::class, 'store']);
-        Route::post('/single', [FolderTemplateController::class, 'storeSingle']);
-        Route::put('/single', [FolderTemplateController::class, 'updateSingle']);
-        Route::get('/detail', [FolderTemplateController::class, 'detail']);
-        Route::put('/', [FolderTemplateController::class, 'update']);
-        Route::delete('/', [FolderTemplateController::class, 'destroy']);
+    Route::prefix('folder-templates')->controller(FolderTemplateController::class)->group(function () {
+        Route::get('/',  'index');
+        Route::post('/',  'store');
+        Route::post('/single',  'storeSingle');
+        Route::put('/single',  'updateSingle');
+        Route::get('/{id}',  'detail');
+        Route::put('/',  'update');
+        Route::delete('/',  'destroy');
     });
 
     // Notification
-    Route::prefix('notifications')->group(function () {
-        Route::get('/', [NotificationController::class, 'getNotifications']);
-        Route::post('/mark-read', [NotificationController::class, 'markAsRead']);
+    Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
+        Route::get('/', 'getNotifications');
+        Route::post('/mark-read', 'markAsRead');
     });
 
     //Help Request

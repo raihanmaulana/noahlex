@@ -49,14 +49,14 @@ class UserController extends Controller
         ]);
     }
 
-    public function detail(Request $request)
+    public function detail($id)
     {
-        $user = User::whereNull('deletedAt')->find($request->id);
+        $user = User::whereNull('deletedAt')->find($id);
 
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'User dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 

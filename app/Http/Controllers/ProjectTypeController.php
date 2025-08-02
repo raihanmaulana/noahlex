@@ -37,15 +37,14 @@ class ProjectTypeController extends Controller
         ]);
     }
 
-
-    public function detail(Request $request)
+    public function detail($id)
     {
-        $type = ProjectType::where('isDeleted', false)->find($request->id);
+        $type = ProjectType::where('isDeleted', false)->find($id);
 
         if (!$type) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project type dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Project type dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
@@ -54,7 +53,6 @@ class ProjectTypeController extends Controller
             'data' => $type
         ]);
     }
-
 
     public function update(Request $request)
     {

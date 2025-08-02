@@ -37,14 +37,14 @@ class ProjectStatusController extends Controller
         ]);
     }
 
-    public function detail(Request $request)
+    public function detail($id)
     {
-        $status = ProjectStatus::where('isDeleted', false)->find($request->id);
+        $status = ProjectStatus::where('isDeleted', false)->find($id);
 
         if (!$status) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project status dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Project status dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
@@ -53,6 +53,7 @@ class ProjectStatusController extends Controller
             'data' => $status
         ]);
     }
+
 
     public function update(Request $request)
     {
