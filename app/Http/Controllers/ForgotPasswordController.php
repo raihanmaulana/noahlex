@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use Carbon\Carbon;
 
 class ForgotPasswordController extends Controller
 {
@@ -16,16 +19,14 @@ class ForgotPasswordController extends Controller
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        // Generate token manual
         $token = Str::random(64);
 
-        // Simpan ke tabel password_resets
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $user->email],
             [
@@ -35,14 +36,13 @@ class ForgotPasswordController extends Controller
             ]
         );
 
-        // Buat link reset kustom untuk testing
         $resetLink = url("/reset-password?token=$token&email=" . urlencode($user->email));
 
-        // Simulasikan kirim email (atau tampilkan langsung untuk testing)
+        Mail::to($user->email)->send(new ResetPasswordMail($resetLink));
+
         return response()->json([
-            'message' => 'Password reset link generated.',
-            'reset_url' => $resetLink,
-            'note' => 'Copy this URL and use it to reset your password via POST /reset-password'
+            'success' => true,
+            'message' => 'Password reset link has been sent to your email.'
         ]);
     }
 
