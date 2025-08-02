@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProjectDocument;
 use Illuminate\Http\Request;
+use App\Models\ProjectDocument;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProjectDocumentController extends Controller
@@ -81,6 +82,52 @@ class ProjectDocumentController extends Controller
         ]);
     }
 
+    // public function store(Request $request)
+    // {
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $request->validate([
+    //             'project_id' => 'required|exists:projects,id',
+    //             'name'       => 'required|string',
+    //             'status'     => 'required|string',
+    //             'tags'       => 'nullable|array',
+    //             'version'    => 'nullable|string',
+    //             'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
+    //         ]);
+
+    //         $filePath = $request->file('document')->store('project_documents');
+
+    //         $document = ProjectDocument::create([
+    //             'project_id'  => $request->project_id,
+    //             'name'        => $request->name,
+    //             'file_path'   => $filePath,
+    //             'status'      => $request->status,
+    //             'tags'        => $request->tags ? json_encode($request->tags) : null,
+    //             'version'     => $request->version,
+    //             'uploaded_by' => auth()->id(),
+    //             'userId'      => auth()->id(),
+    //             'expiry_date' => now()->addDays(30),
+    //         ]);
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Document uploaded successfully.',
+    //             'data'    => $document
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to upload document.',
+    //             'error'   => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -95,7 +142,7 @@ class ProjectDocumentController extends Controller
                 'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
             ]);
 
-            $filePath = $request->file('document')->store('project_documents');
+            $filePath = $request->file('document')->store('project_documents', 'public');
 
             $document = ProjectDocument::create([
                 'project_id'  => $request->project_id,
@@ -109,6 +156,11 @@ class ProjectDocumentController extends Controller
                 'expiry_date' => now()->addDays(30),
             ]);
 
+            // Tambahkan debug disini
+            if (!$document) {
+                throw new \Exception("ProjectDocument create returned null");
+            }
+
             DB::commit();
 
             return response()->json([
@@ -119,6 +171,8 @@ class ProjectDocumentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
+            Log::error('Upload Document Error:', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload document.',
@@ -126,6 +180,7 @@ class ProjectDocumentController extends Controller
             ], 500);
         }
     }
+
 
     public function update(Request $request)
     {
