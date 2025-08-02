@@ -16,6 +16,7 @@ class Project extends Model
         'date',
         'status_id',
         'size',
+        'cover',
         'project_manager_id',
         'enable_workflow',
         'userId',

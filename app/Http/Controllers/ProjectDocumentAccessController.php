@@ -54,7 +54,7 @@ class ProjectDocumentAccessController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Invite process completed.',
+            'message' => 'Invite sent successfully!',
             'added' => $addedUsers,
             'not_found' => $notFound
         ]);

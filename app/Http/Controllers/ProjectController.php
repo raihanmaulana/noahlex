@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\ProjectFolder;
 use App\Models\FolderTemplate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -43,7 +44,17 @@ class ProjectController extends Controller
         DB::beginTransaction();
 
         try {
+            
+            $request->validate([
+                'cover' => 'nullable|file|mimes:jpg,jpeg,png|max:2048'
+            ]);
+
             // Step 1: Buat data project utama
+            $coverPath = null;
+            if ($request->hasFile('cover')) {
+                $coverPath = $request->file('cover')->store('project_covers');
+            }
+
             $project = Project::create([
                 'name' => $request->name,
                 'type_id' => $request->type_id,
@@ -52,6 +63,7 @@ class ProjectController extends Controller
                 'date' => $request->date,
                 'status_id' => $request->status_id,
                 'size' => $request->size,
+                'cover' => $coverPath,
                 'enable_workflow' => $request->enable_workflow,
                 'project_manager_id' => $request->project_manager_id,
                 'userId' => auth()->id(),
@@ -159,6 +171,11 @@ class ProjectController extends Controller
         DB::beginTransaction();
 
         try {
+
+            $request->validate([
+                'cover' => 'nullable|file|mimes:jpg,jpeg,png|max:2048'
+            ]);
+
             $project = Project::where('isDeleted', false)->find($request->id);
 
             if (!$project) {
@@ -166,6 +183,15 @@ class ProjectController extends Controller
                     'success' => false,
                     'message' => 'Project dengan ID ' . $request->id . ' tidak ditemukan.'
                 ], 404);
+            }
+
+            if ($request->hasFile('cover')) {
+                if ($project->cover && Storage::exists($project->cover)) {
+                    Storage::delete($project->cover);
+                }
+                $coverPath = $request->file('cover')->store('project_covers');
+            } else {
+                $coverPath = $project->cover;
             }
 
             // Update utama
@@ -177,6 +203,7 @@ class ProjectController extends Controller
                 'date' => $request->date,
                 'status_id' => $request->status_id,
                 'size' => $request->size,
+                'cover' => $coverPath,
                 'enable_workflow' => $request->enable_workflow,
                 'project_manager_id' => $request->project_manager_id,
                 'userUpdateId' => auth()->id(),
