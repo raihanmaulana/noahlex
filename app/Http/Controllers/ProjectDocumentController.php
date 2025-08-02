@@ -20,10 +20,20 @@ class ProjectDocumentController extends Controller
 
     public function index(Request $request)
     {
-        $query = ProjectDocument::where('isDeleted', false);
+        $userId = auth()->id();
+
+        $query = ProjectDocument::where('isDeleted', false)
+            ->where(function ($q) use ($userId) {
+                $q->where('uploaded_by', $userId)
+                    ->orWhereIn('id', function ($sub) use ($userId) {
+                        $sub->select('document_id')
+                            ->from('project_document_accesses')
+                            ->where('user_id', $userId);
+                    });
+            });
 
         if ($request->filled('filename')) {
-            $mode = $request->query('filename_mode', 'contains'); // default contains
+            $mode = $request->query('filename_mode', 'contains');
             $value = $request->query('filename');
 
             switch (strtolower($mode)) {
@@ -48,7 +58,7 @@ class ProjectDocumentController extends Controller
                 case 'is not empty':
                     $query->whereNotNull('name')->where('name', '!=', '');
                     break;
-                default:
+                default: 
                     $query->where('name', 'like', '%' . $value . '%');
                     break;
             }
@@ -82,52 +92,6 @@ class ProjectDocumentController extends Controller
         ]);
     }
 
-    // public function store(Request $request)
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $request->validate([
-    //             'project_id' => 'required|exists:projects,id',
-    //             'name'       => 'required|string',
-    //             'status'     => 'required|string',
-    //             'tags'       => 'nullable|array',
-    //             'version'    => 'nullable|string',
-    //             'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
-    //         ]);
-
-    //         $filePath = $request->file('document')->store('project_documents');
-
-    //         $document = ProjectDocument::create([
-    //             'project_id'  => $request->project_id,
-    //             'name'        => $request->name,
-    //             'file_path'   => $filePath,
-    //             'status'      => $request->status,
-    //             'tags'        => $request->tags ? json_encode($request->tags) : null,
-    //             'version'     => $request->version,
-    //             'uploaded_by' => auth()->id(),
-    //             'userId'      => auth()->id(),
-    //             'expiry_date' => now()->addDays(30),
-    //         ]);
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Document uploaded successfully.',
-    //             'data'    => $document
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed to upload document.',
-    //             'error'   => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -142,7 +106,7 @@ class ProjectDocumentController extends Controller
                 'document'   => 'required|file|mimes:pdf,xlsx,xls,doc,docx,dwg'
             ]);
 
-            $filePath = $request->file('document')->store('project_documents', 'public');
+            $filePath = $request->file('document')->store('project_documents');
 
             $document = ProjectDocument::create([
                 'project_id'  => $request->project_id,
@@ -156,11 +120,6 @@ class ProjectDocumentController extends Controller
                 'expiry_date' => now()->addDays(30),
             ]);
 
-            // Tambahkan debug disini
-            if (!$document) {
-                throw new \Exception("ProjectDocument create returned null");
-            }
-
             DB::commit();
 
             return response()->json([
@@ -171,8 +130,6 @@ class ProjectDocumentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('Upload Document Error:', ['error' => $e->getMessage()]);
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload document.',
@@ -180,7 +137,6 @@ class ProjectDocumentController extends Controller
             ], 500);
         }
     }
-
 
     public function update(Request $request)
     {

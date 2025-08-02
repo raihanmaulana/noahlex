@@ -15,6 +15,8 @@ use App\Http\Controllers\FolderTemplateController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ProjectDocumentController;
 use App\Http\Controllers\ProjectAssignmentController;
+use App\Http\Controllers\ProjectDocumentAccessController;
+use App\Http\Controllers\ProjectDocumentCommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,13 +89,26 @@ Route::middleware('auth:api')->group(function () {
     //Project Document
     Route::prefix('project-documents')->controller(ProjectDocumentController::class)->group(function () {
         Route::get('/', 'index');             
-        Route::post('/', 'store');            
+        Route::post('/store', 'store');            
         Route::post('/update', 'update');     
         Route::get('/{id}', 'detail');     
         Route::delete('/', 'destroy');   
         Route::post('/toggle-expiry', 'toggleExpiryReminder');   
     });
 
+    //Project Document Comment
+    Route::prefix('project-document-comments')->controller(ProjectDocumentCommentController::class)->group(function () {
+        Route::get('/{document_id}', 'index');
+        Route::post('/', 'store');
+        Route::delete('/', 'destroy');
+    });
+
+    //Project Document Access
+    Route::prefix('project-document-access')->controller(ProjectDocumentAccessController::class)->group(function () {
+        Route::post('/invite', 'invite');
+        Route::get('/{document_id}', 'listAccess');
+        Route::delete('/revoke', 'revokeAccess');
+    });
 
     // Project Assignment
     Route::prefix('assignment-types')->controller(ProjectAssignmentController::class)->group(function () {
