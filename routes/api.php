@@ -41,9 +41,19 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 
+// Route::get('/pipeline', [DashboardController::class, 'pipeline']);
+
+// // Maps Test
+// Route::get('/maps-test', function () {
+//     return view('maps-test');
+// });
+
+
+
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
 
     //Dashboard
     Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
