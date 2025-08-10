@@ -8,11 +8,14 @@ class ProjectDocument extends Model
 {
     protected $fillable = [
         'project_id',
+        'vendor_id',
         'name',
         'file_path',
         'status_id',
+        'document_group_id',
         'tags',
         'version',
+        'revision_notes',
         'uploaded_by',
         'expiry_date',
         'isDeleted',
@@ -39,5 +42,10 @@ class ProjectDocument extends Model
     public function status()
     {
         return $this->belongsTo(ProjectDocumentStatus::class, 'status_id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 }

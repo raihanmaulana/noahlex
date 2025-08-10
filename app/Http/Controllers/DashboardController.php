@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
-use App\Models\ProjectDocument;
 use Carbon\Carbon;
+use App\Models\Project;
+use App\Models\ProjectType;
+use App\Models\ProjectStage;
+use App\Models\ProjectDocument;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -64,16 +66,16 @@ class DashboardController extends Controller
                 ->where('name', 'like', '%' . $search . '%')
                 ->get(['id', 'name', 'location', 'size', 'cover', 'status_id', 'created_at']);
 
-            $latestProjects = []; 
+            $latestProjects = [];
         } else {
-            $searchResults = []; 
+            $searchResults = [];
 
             $latestProjects = Project::where('isDeleted', false)
                 ->latest()
                 ->take(6)
                 ->get(['id', 'name', 'location', 'size', 'cover', 'status_id', 'created_at']);
         }
-        
+
         return response()->json([
             'success' => true,
             'summary' => [
@@ -96,6 +98,78 @@ class DashboardController extends Controller
             ],
             'latest_projects' => $latestProjects,
             'search_results' => $searchResults
+        ]);
+    }
+
+    public function pipeline()
+    {
+        
+        $types = ProjectType::where('isDeleted', false)->pluck('name', 'id');
+
+        
+        $locations = Project::where('isDeleted', false)
+            ->whereNotNull('location') 
+            ->get(['id', 'name', 'type_id', 'size', 'location']);
+
+        $totalLocations = $locations->count();
+
+        $breakdownByStageRaw = Project::select(
+            'stage_id',
+            'type_id',
+            DB::raw('SUM(REPLACE(size, " MW", "")) as total_mw')
+        )
+            ->where('isDeleted', false)
+            ->groupBy('stage_id', 'type_id')
+            ->get();
+
+        $breakdownByStage = [];
+        foreach (ProjectStage::all() as $stage) {
+            $row = ['stage' => $stage->name];
+            foreach ($types as $typeId => $typeName) {
+                $row[strtolower($typeName)] = 0; 
+            }
+            foreach ($breakdownByStageRaw as $item) {
+                if ($item->stage_id == $stage->id) {
+                    $typeName = strtolower($types[$item->type_id] ?? 'unknown');
+                    $row[$typeName] = (float) $item->total_mw;
+                }
+            }
+            $breakdownByStage[] = $row;
+        }
+
+        
+        $breakdownByYearRaw = Project::select(
+            DB::raw('YEAR(cod_date) as cod_year'),
+            'type_id',
+            DB::raw('SUM(REPLACE(size, " MW", "")) as total_mw')
+        )
+            ->where('isDeleted', false)
+            ->whereNotNull('cod_date')
+            ->groupBy(DB::raw('YEAR(cod_date)'), 'type_id')
+            ->get();
+
+        $years = $breakdownByYearRaw->pluck('cod_year')->unique()->sort();
+        $breakdownByYear = [];
+        foreach ($years as $year) {
+            $row = ['year' => $year];
+            foreach ($types as $typeId => $typeName) {
+                $row[strtolower($typeName)] = 0; 
+            }
+            foreach ($breakdownByYearRaw as $item) {
+                if ($item->cod_year == $year) {
+                    $typeName = strtolower($types[$item->type_id] ?? 'unknown');
+                    $row[$typeName] = (float) $item->total_mw;
+                }
+            }
+            $breakdownByYear[] = $row;
+        }
+
+        return response()->json([
+            'success' => true,
+            'total_locations' => $totalLocations,
+            'locations' => $locations,
+            'breakdown_by_stage' => $breakdownByStage,
+            'breakdown_by_cod_year' => $breakdownByYear
         ]);
     }
 }

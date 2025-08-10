@@ -72,4 +72,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->role ? $this->role->permissions() : collect();
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }

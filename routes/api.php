@@ -6,8 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HelpRequestController;
 use App\Http\Controllers\ProjectTypeController;
 use App\Http\Controllers\NotificationController;
@@ -41,9 +42,11 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 
+
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
 
     //Dashboard
     Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
@@ -98,10 +101,16 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/store', 'store');
         Route::post('/update', 'update');
         Route::get('/{id}', 'detail');
-        Route::delete('/', 'destroy');
+        Route::post('/{id}', 'destroy');
         Route::post('/toggle-expiry', 'toggleExpiryReminder');
         Route::post('/approve', 'approveDocument');
         Route::post('/reject', 'rejectDocument');
+        Route::get('/download/{id}', 'download');
+        Route::get('/preview/{id}', 'preview');
+        Route::post('/{groupId}/versions', 'storeVersion');
+        Route::get('/{groupId}/versions',  'listVersions');
+        Route::get('/{documentId}/activity',  'activityLog');
+        Route::post('/{id}/restore',  'restore');
     });
 
     //Project Document Comment
@@ -164,4 +173,12 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/',  'index');
         Route::put('/update-status',  'updateStatus');
     });
+
+    // Route::prefix('billing')->controller(BillingController::class)->group(function () {
+    //     Route::post('/create-checkout-session',  'createCheckoutSession');
+    //     Route::get('/billing/success',  'success');
+    //     Route::get('/billing/cancel',  'cancel');
+    // });
+
+    Route::post('/stripe/webhook', [BillingController::class, 'webhook']);
 });

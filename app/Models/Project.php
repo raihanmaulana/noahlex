@@ -14,7 +14,7 @@ class Project extends Model
         'type_id',
         'location',
         'date',
-        'status_id',
+        'stage_id',
         'size',
         'cover',
         'project_manager_id',
