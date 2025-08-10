@@ -13,7 +13,7 @@ class ProjectStatusSeeder extends Seeder
      */
     public function run(): void
     {
-        $statuses = ['Feasibility', 'Development', 'Procurement', 'Construction', 'Commissioning', 'Completed'];
+        $statuses = ['Accepted', 'Rejected', 'Under Review', 'Expired'];
 
         foreach ($statuses as $status) {
             ProjectStatus::create([

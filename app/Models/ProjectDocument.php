@@ -8,12 +8,16 @@ class ProjectDocument extends Model
 {
     protected $fillable = [
         'project_id',
+        'vendor_id',
         'name',
         'file_path',
-        'status',
+        'status_id',
+        'document_group_id',
         'tags',
         'version',
+        'revision_notes',
         'uploaded_by',
+        'expiry_date',
         'isDeleted',
         'userId',
         'userUpdateId',
@@ -33,5 +37,15 @@ class ProjectDocument extends Model
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(ProjectDocumentStatus::class, 'status_id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 }

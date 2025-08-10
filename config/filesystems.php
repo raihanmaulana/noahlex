@@ -36,10 +36,21 @@ return [
             'throw' => false,
         ],
 
+        'documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/project_documents'),
+            'visibility' => 'private',
+        ],
+
+        'backup_documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backup_documents'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
