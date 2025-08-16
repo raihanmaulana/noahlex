@@ -7,6 +7,10 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ProjectDocument;
 use Illuminate\Support\Facades\DB;
+use App\Models\DocumentActivityLog;
+use Illuminate\Support\Facades\Log;
+use App\Notifications\DocumentApproved;
+use App\Notifications\DocumentRejected;
 use Illuminate\Support\Facades\Storage;
 
 class ProjectDocumentController extends Controller
