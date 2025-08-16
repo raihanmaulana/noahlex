@@ -39,6 +39,10 @@ use App\Http\Controllers\ProjectDocumentCommentController;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
+Route::post('auth/social/{provider}', [AuthController::class, 'socialLogin'])
+    ->whereIn('provider', ['google', 'apple']);
+
+
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
 
@@ -174,11 +178,11 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/update-status',  'updateStatus');
     });
 
-    // Route::prefix('billing')->controller(BillingController::class)->group(function () {
-    //     Route::post('/create-checkout-session',  'createCheckoutSession');
-    //     Route::get('/billing/success',  'success');
-    //     Route::get('/billing/cancel',  'cancel');
-    // });
+    Route::prefix('billing')->controller(BillingController::class)->group(function () {
+        Route::post('/create-checkout-session',  'createCheckoutSession');
+        Route::get('/billing/success',  'success');
+        Route::get('/billing/cancel',  'cancel');
+    });
 
     Route::post('/stripe/webhook', [BillingController::class, 'webhook']);
 });
