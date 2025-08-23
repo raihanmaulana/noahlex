@@ -105,7 +105,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::put('/', 'update');
         Route::get('/{id}', 'detail');
-        Route::post('/{id}', 'destroy');
+        Route::delete('/{id}', 'destroy');
         Route::post('/toggle-expiry', 'toggleExpiryReminder');
         Route::post('/approve', 'approveDocument');
         Route::post('/reject', 'rejectDocument');
