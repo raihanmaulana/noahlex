@@ -127,7 +127,7 @@ class AccountController extends Controller
         $user->google2fa_secret = $secret;
         $user->save();
 
-        $company = 'Noahlex App'; // nama aplikasi kamu
+        $company = 'Noahlex App';
         $qrContent = $google2fa->getQRCodeUrl(
             $company,
             $user->email,
@@ -167,5 +167,46 @@ class AccountController extends Controller
         } else {
             return response()->json(['message' => 'Invalid OTP.'], 422);
         }
+    }
+
+    public function show(Request $request)
+    {
+        // Ambil user dari JWT dan muat role + permissions
+        $user = auth()->user()?->load([
+            'role:id,name',
+            'role.permissions:id,name,label'
+        ]);
+
+        if (!$user) {
+            return response()->json([
+                'code'    => 'UNAUTHORIZED',
+                'message' => 'Invalid or expired token',
+            ], 401);
+        }
+
+        // Bentuk response yang rapi & aman (tanpa field sensitif)
+        $data = [
+            'id'             => $user->id,
+            'name'           => $user->name,
+            'email'          => $user->email,
+            'company_name'   => $user->company_name,
+            'profile_image'  => $user->profile_image,
+            'is_2fa_enabled' => (bool) $user->is_2fa_enabled,
+            'role' => $user->role ? [
+                'id'          => $user->role->id,
+                'name'        => $user->role->name,
+                'label'       => $user->role->label,
+                'permissions' => $user->role->permissions->map(function ($p) {
+                    return [
+                        'id'    => $p->id,
+                        'name'  => $p->name,
+                        'label' => $p->label,
+                    ];
+                })->values(),
+            ] : null,
+        ];
+
+        // Sukses → kembalikan data apa adanya (tanpa code/message)
+        return response()->json($data);
     }
 }

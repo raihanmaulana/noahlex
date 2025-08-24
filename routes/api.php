@@ -79,7 +79,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/import',  'importUsers');
     });
 
-    //Account
+    // Account
     Route::prefix('account')->controller(AccountController::class)->group(function () {
         Route::post('/change-password',  'changePassword');
         Route::get('/notification-settings',  'getNotificationSettings');
@@ -87,6 +87,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/update',  'updateProfile');
         Route::post('/generate-2fa',  'generate2FASecret');
         Route::post('/verify-2fa',  'verify2FA');
+        Route::get('/me',  'show');
     });
 
     // Projects
@@ -99,7 +100,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/bulk-assign', 'bulkAssignUsersToProjects');
     });
 
-    //Project Document
+    // Project Document
     Route::prefix('project-documents')->controller(ProjectDocumentController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/store', 'store');
