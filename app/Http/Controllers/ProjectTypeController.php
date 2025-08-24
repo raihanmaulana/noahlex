@@ -13,7 +13,7 @@ class ProjectTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'List project types berhasil diambil.',
+            'message' => 'Project types list retrieved successfully.',
             'data' => $types
         ]);
     }
@@ -32,7 +32,7 @@ class ProjectTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Project type berhasil ditambahkan.',
+            'message' => 'Project type was successfully added.',
             'data' => $type
         ]);
     }
@@ -76,33 +76,35 @@ class ProjectTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Project type berhasil diperbarui.',
+            'message' => 'Project type was successfully updated.',
             'data' => $type
         ]);
     }
 
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $type = ProjectType::where('isDeleted', false)->find($request->id);
+        $type = ProjectType::where('isDeleted', false)
+            ->where('id', $id)
+            ->first();
 
         if (!$type) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project type dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Project type dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
         $type->update([
-            'isDeleted' => true,
-            'deletedBy' => auth()->user()->name,
-            'deletedAt' => now(),
-            'userUpdateId' => auth()->id()
+            'isDeleted'    => true,
+            'deletedBy'    => auth()->user()->name,
+            'deletedAt'    => now(),
+            'userUpdateId' => auth()->id(),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Project type berhasil dihapus.'
+            'message' => 'Project type was successfully deleted.'
         ]);
     }
 }

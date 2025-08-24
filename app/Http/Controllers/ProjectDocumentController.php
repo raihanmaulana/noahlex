@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use App\Notifications\DocumentApproved;
 use App\Notifications\DocumentRejected;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\DocumentUploadSuccess;
 
 class ProjectDocumentController extends Controller
 {
@@ -163,6 +164,8 @@ class ProjectDocumentController extends Controller
             ]);
 
             DB::commit();
+
+            $request->user()->notify(new DocumentUploadSuccess($document));
 
             return response()->json([
                 'success' => true,

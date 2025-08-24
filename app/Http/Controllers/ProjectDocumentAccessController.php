@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProjectDocumentAccess;
-use App\Models\ProjectDocument;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\ProjectDocument;
+use Illuminate\Support\Facades\DB;
 use App\Mail\DocumentInvitationMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Models\ProjectDocumentAccess;
 
 class ProjectDocumentAccessController extends Controller
 {
@@ -72,16 +73,27 @@ class ProjectDocumentAccessController extends Controller
         ]);
     }
 
-    public function revokeAccess(Request $request)
+    public function revokeAccess($document_id)
     {
-        $request->validate([
-            'document_id' => 'required|exists:project_documents,id',
-            'user_id' => 'required|exists:users,id' // TODO: user get by token/jwt/session
-        ]);
+        if (!DB::table('project_documents')->where('id', $document_id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Document not found.'
+            ], 404);
+        }
 
-        ProjectDocumentAccess::where('document_id', $request->document_id)
-            ->where('user_id', $request->user_id)
+        $userId = auth()->id();
+
+        $deleted = ProjectDocumentAccess::where('document_id', $document_id)
+            ->where('user_id', $userId)
             ->delete();
+
+        if ($deleted === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No access to revoke for this user on the document.'
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,

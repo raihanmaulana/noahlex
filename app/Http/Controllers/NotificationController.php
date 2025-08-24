@@ -23,7 +23,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Notifikasi berhasil diambil.',
+            'message' => 'Notification retrieved successfully.',
             'data' => $notifications
         ]);
     }

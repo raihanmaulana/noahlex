@@ -2,18 +2,20 @@
 
 namespace App\Jobs;
 
+use Throwable;
+use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
+use App\Models\ProjectDocument;
+use Illuminate\Support\Facades\DB;
+use App\Models\DocumentActivityLog;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Notifications\DocumentUploadFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use App\Models\ProjectDocument;
-use App\Models\DocumentActivityLog;
-use App\Models\User;
-use Throwable;
+use App\Notifications\DocumentUploadSuccess;
 
 class ProcessDocumentUpload implements ShouldQueue
 {
@@ -86,22 +88,21 @@ class ProcessDocumentUpload implements ShouldQueue
                 'document_id' => $document->id,
                 'user_id'     => $this->userId,
                 'action'      => 'upload',
-                'metadata'    => [ /* data metadata */ ],
+                'metadata'    => [ /* data metadata */],
             ]);
-            
-            // TODO: Kirim notifikasi ke user bahwa upload berhasil
-            // $user->notify(new DocumentUploadSuccess($document));
+
+            $user->notify(new DocumentUploadSuccess($document));
 
             DB::commit();
-
         } catch (Throwable $e) {
             DB::rollBack();
-            // TODO: Kirim notifikasi ke user bahwa upload gagal
-            // if (isset($user)) {
-            //     $user->notify(new DocumentUploadFailed($this->data['name'], $e->getMessage()));
-            // }
+            if (isset($user)) {
+                $user->notify(new DocumentUploadFailed(
+                    $this->data['original_name'],
+                    $e->getMessage()
+                ));
+            }
 
-            // Job akan otomatis dicatat sebagai 'failed' oleh Laravel Queue
             $this->fail($e);
         }
     }

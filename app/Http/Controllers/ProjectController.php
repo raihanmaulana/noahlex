@@ -34,7 +34,7 @@ class ProjectController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'List project berhasil diambil.',
+            'message' => 'Project list retrieved successfully.',
             'data' => $projects
         ]);
     }
@@ -44,7 +44,7 @@ class ProjectController extends Controller
         DB::beginTransaction();
 
         try {
-            
+
             $request->validate([
                 'cover' => 'nullable|file|mimes:jpg,jpeg,png|max:2048'
             ]);
@@ -274,15 +274,17 @@ class ProjectController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $project = Project::where('isDeleted', false)->findOrFail($request->id);
+        $project = Project::where('isDeleted', false)
+            ->where('id', $id)
+            ->firstOrFail();
 
         $project->update([
-            'isDeleted' => true,
-            'deletedBy' => auth()->user()->name,
-            'deletedAt' => now(),
-            'userUpdateId' => auth()->id()
+            'isDeleted'    => true,
+            'deletedBy'    => auth()->user()->name,
+            'deletedAt'    => now(),
+            'userUpdateId' => auth()->id(),
         ]);
 
         return response()->json([

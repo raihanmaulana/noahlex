@@ -61,13 +61,10 @@ class RoleController extends Controller
         return response()->json($role);
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $request->validate([
-            'id' => 'required|integer|exists:roles,id',
-        ]);
+        $role = Role::findOrFail($id);
 
-        $role = Role::find($request->id);
         $role->update([
             'isDeleted' => true,
             'deletedBy' => auth()->user()->name,
@@ -75,8 +72,12 @@ class RoleController extends Controller
             'userUpdateId' => auth()->id(),
         ]);
 
-        return response()->json(['message' => 'Role marked as deleted']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Role deleted successfully.'
+        ]);
     }
+
 
     public function updatePermission(Request $request)
     {
