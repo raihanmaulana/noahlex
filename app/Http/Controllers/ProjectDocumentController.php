@@ -45,24 +45,24 @@ class ProjectDocumentController extends Controller
                 case 'is':
                     $query->where('name', '=', $value);
                     break;
-                case 'is not':
+                case 'is_not':
                     $query->where('name', '!=', $value);
                     break;
-                case 'starts with':
+                case 'starts_with':
                     $query->where('name', 'like', $value . '%');
                     break;
-                case 'ends with':
+                case 'ends_with':
                     $query->where('name', 'like', '%' . $value);
                     break;
-                case 'does not contain':
+                case 'does_not_contain':
                     $query->where('name', 'not like', '%' . $value . '%');
                     break;
-                case 'is empty':
+                case 'is_empty':
                     $query->where(function ($qq) {
                         $qq->whereNull('name')->orWhere('name', '');
                     });
                     break;
-                case 'is not empty':
+                case 'is_not_empty':
                     $query->whereNotNull('name')->where('name', '!=', '');
                     break;
                 default:
@@ -563,12 +563,12 @@ class ProjectDocumentController extends Controller
 
         $uploader = User::find($document->uploaded_by);
 
-        
+
         if ($uploader) {
             try {
                 $uploader->notify(new DocumentRejected($document));
             } catch (\Exception $e) {
-                
+
                 Log::error('Failed to send DocumentRejected notification.', [
                     'user_id' => $uploader->id,
                     'document_id' => $document->id,

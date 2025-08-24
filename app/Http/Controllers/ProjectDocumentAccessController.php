@@ -76,7 +76,7 @@ class ProjectDocumentAccessController extends Controller
     {
         $request->validate([
             'document_id' => 'required|exists:project_documents,id',
-            'user_id' => 'required|exists:users,id'
+            'user_id' => 'required|exists:users,id' // TODO: user get by token/jwt/session
         ]);
 
         ProjectDocumentAccess::where('document_id', $request->document_id)
