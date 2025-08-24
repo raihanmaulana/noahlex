@@ -13,7 +13,7 @@ class FolderTemplateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'List folder templates berhasil diambil.',
+            'message' => 'Folder template list retrieved successfully.',
             'data' => $templates
         ]);
     }
@@ -54,7 +54,7 @@ class FolderTemplateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Beberapa folder template berhasil dibuat.',
+            'message' => 'Several folder templates were successfully created.',
             'data' => $created
         ]);
     }
@@ -78,7 +78,7 @@ class FolderTemplateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Folder template berhasil ditambahkan.',
+            'message' => 'Folder template was successfully added.',
             'data' => $template
         ]);
     }
@@ -111,7 +111,7 @@ class FolderTemplateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Folder template berhasil diperbarui.',
+            'message' => 'Folder template was successfully updated.',
             'data' => $template
         ]);
     }
@@ -156,27 +156,29 @@ class FolderTemplateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Folder templates berhasil diperbarui.'
+            'message' => 'Folder templates were successfully updated.'
         ]);
     }
 
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $template = FolderTemplate::where('isDeleted', false)->find($request->id);
+        $template = FolderTemplate::where('isDeleted', false)
+            ->where('id', $id)
+            ->first();
 
         if (!$template) {
             return response()->json([
                 'success' => false,
-                'message' => 'Folder template dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Folder template with ID ' . $id . ' was not found.'
             ], 404);
         }
-
+        
         $this->softDeleteRecursively($template);
 
         return response()->json([
             'success' => true,
-            'message' => 'Folder template (beserta child folder) berhasil dihapus.'
+            'message' => 'Folder template (along with its child folders) was successfully deleted.'
         ]);
     }
 

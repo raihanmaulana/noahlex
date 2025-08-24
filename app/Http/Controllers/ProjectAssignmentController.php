@@ -14,7 +14,7 @@ class ProjectAssignmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'List assignment types berhasil diambil.',
+            'message' => 'Assignment types list retrieved successfully.',
             'data' => $types
         ]);
     }

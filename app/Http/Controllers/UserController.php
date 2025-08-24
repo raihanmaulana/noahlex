@@ -18,7 +18,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Daftar user berhasil diambil.',
+            'message' => 'User list retrieved successfully.',
             'data' => $users
         ]);
     }
@@ -44,7 +44,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User berhasil ditambahkan.',
+            'message' => 'User was successfully added.',
             'data' => $user
         ]);
     }
@@ -98,31 +98,32 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User berhasil diperbarui.',
+            'message' => 'User was successfully updated.',
             'data' => $user
         ]);
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $user = User::whereNull('deletedAt')->find($request->id);
+
+        $user = User::whereNull('deletedAt')->where('id', $id)->first();
 
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'User dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
         $user->update([
-            'deletedAt' => now(),
-            'deletedBy' => auth()->user()->name,
-            'userUpdateId' => auth()->id()
+            'deletedAt'    => now(),
+            'deletedBy'    => auth()->user()->name, 
+            'userUpdateId' => auth()->id(),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'User berhasil dihapus (soft delete).'
+            'message' => 'User was successfully deleted.'
         ]);
     }
 
@@ -158,7 +159,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User import berhasil.'
+            'message' => 'User import was successful.'
         ]);
     }
 }

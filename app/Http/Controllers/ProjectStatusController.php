@@ -13,7 +13,7 @@ class ProjectStatusController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'List project status berhasil diambil.',
+            'message' => 'Project status list retrieved successfully.',
             'data' => $statuses
         ]);
     }
@@ -32,7 +32,7 @@ class ProjectStatusController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Project status berhasil ditambahkan.',
+            'message' => 'Project status was successfully added.',
             'data' => $status
         ]);
     }
@@ -77,32 +77,34 @@ class ProjectStatusController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Project status berhasil diperbarui.',
+            'message' => 'Project status was successfully updated.',
             'data' => $status
         ]);
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $status = ProjectStatus::where('isDeleted', false)->find($request->id);
+        $status = ProjectStatus::where('isDeleted', false)
+            ->where('id', $id)
+            ->first();
 
         if (!$status) {
             return response()->json([
                 'success' => false,
-                'message' => 'Project status dengan ID ' . $request->id . ' tidak ditemukan.'
+                'message' => 'Project status dengan ID ' . $id . ' tidak ditemukan.'
             ], 404);
         }
 
         $status->update([
-            'isDeleted' => true,
-            'deletedBy' => auth()->user()->name,
-            'deletedAt' => now(),
-            'userUpdateId' => auth()->id()
+            'isDeleted'    => true,
+            'deletedBy'    => auth()->user()->name,
+            'deletedAt'    => now(),
+            'userUpdateId' => auth()->id(),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Project status berhasil dihapus.'
+            'message' => 'Project status was successfully deleted.'
         ]);
     }
 }

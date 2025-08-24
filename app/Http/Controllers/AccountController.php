@@ -69,7 +69,7 @@ class AccountController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Password berhasil diubah.'
+            'message' => 'Password updated successfully.'
         ]);
     }
 
@@ -113,7 +113,7 @@ class AccountController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Preferensi notifikasi berhasil diperbarui.'
+            'message' => 'Notification preferences have been successfully updated.'
         ]);
     }
 
@@ -171,7 +171,6 @@ class AccountController extends Controller
 
     public function show(Request $request)
     {
-        // Ambil user dari JWT dan muat role + permissions
         $user = auth()->user()?->load([
             'role:id,name',
             'role.permissions:id,name,label'

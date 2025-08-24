@@ -63,7 +63,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}',  'detail');
         Route::put('/', 'update');
-        Route::delete('/', 'destroy');  // TODO: use id in query param
+        Route::delete('/{id}', 'destroy'); 
         Route::post('/update-permission', 'updatePermission');
     });
 
@@ -73,7 +73,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}', 'detail');
         Route::put('/', 'update');
-        Route::delete('/', 'destroy'); // TODO: use id in query param
+        Route::delete('/{id}', 'destroy'); 
         Route::get('/template/download',  'downloadTemplate');
         Route::post('/preview-import',  'previewImport');
         Route::post('/import',  'importUsers');
@@ -96,7 +96,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}', 'detail');
         Route::put('/', 'update');
-        Route::delete('/', 'destroy'); // TODO: use id in query param
+        Route::delete('/{id}', 'destroy'); 
         Route::post('/bulk-assign', 'bulkAssignUsersToProjects');
     });
 
@@ -122,14 +122,14 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('project-document-comments')->controller(ProjectDocumentCommentController::class)->group(function () {
         Route::get('/{document_id}', 'index');
         Route::post('/', 'store');
-        Route::delete('/', 'destroy'); // TODO: use id in query param
+        Route::delete('/{id}', 'destroy');
     });
 
     //Project Document Access
     Route::prefix('project-document-access')->controller(ProjectDocumentAccessController::class)->group(function () {
         Route::post('/invite', 'invite');
         Route::get('/{document_id}', 'listAccess');
-        Route::delete('/revoke', 'revokeAccess'); // TODO: plese change to `/revoke/{document_id}`
+        Route::delete('/revoke/{document_id}', 'revokeAccess');
     });
 
     // Project Assignment
@@ -143,7 +143,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/',  'store');
         Route::get('/{id}',  'detail');
         Route::put('/',  'update');
-        Route::delete('/',  'destroy'); // TODO: use id in query param
+        Route::delete('/{id}',  'destroy');
     });
 
     // Project Status
@@ -152,7 +152,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}', 'detail');
         Route::put('/', 'update');
-        Route::delete('/', 'destroy'); // TODO: use id in query param
+        Route::delete('/{id}', 'destroy');
     });
 
     // Folder Template
@@ -163,7 +163,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/single',  'updateSingle');
         Route::get('/{id}',  'detail');
         Route::put('/',  'update');
-        Route::delete('/',  'destroy'); // TODO: use id in query param
+        Route::delete('/{id}',  'destroy'); 
     });
 
     // Notification

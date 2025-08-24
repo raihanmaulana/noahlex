@@ -42,13 +42,16 @@ class ProjectDocumentCommentController extends Controller
         ]);
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $request->validate([
-            'id' => 'required|exists:project_document_comments,id'
-        ]);
+        $comment = ProjectDocumentComment::find($id);
 
-        $comment = ProjectDocumentComment::findOrFail($request->id);
+        if (!$comment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment not found.'
+            ], 404);
+        }
 
         if ($comment->user_id !== Auth::id()) {
             return response()->json([
