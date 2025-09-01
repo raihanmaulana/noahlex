@@ -69,10 +69,10 @@ class AuthController extends Controller
     public function socialLogin(Request $request, string $provider)
     {
         $request->validate([
-            // Frontend boleh kirim salah satu: access_token atau id_token
+
             'access_token' => 'nullable|string',
             'id_token'     => 'nullable|string',
-            'name'         => 'nullable|string', // Apple kadang hanya ngasih nama sekali di FE
+            'name'         => 'nullable|string', 
         ]);
 
         if (!in_array($provider, ['google', 'apple'])) {
@@ -86,7 +86,7 @@ class AuthController extends Controller
                 $socialUser = $this->getAppleUser($request);
             }
         } catch (\Throwable $e) {
-            // fallback format error dari Handler-mu juga bisa
+
             return response()->json([
                 'errorCode' => 'ERR_SOCIAL_VERIFY',
                 'message'   => 'Failed to verify social token: ' . $e->getMessage(),
@@ -94,7 +94,6 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // $socialUser minimal punya: email, id, name, avatar
         if (empty($socialUser['email'])) {
             return response()->json([
                 'errorCode' => 'ERR_EMAIL_REQUIRED',
@@ -103,24 +102,21 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Cari user by email
         $user = User::where('email', $socialUser['email'])->first();
 
         if (!$user) {
-            // Auto-register
             $user = User::create([
                 'name'         => $socialUser['name'] ?? (explode('@', $socialUser['email'])[0]),
                 'email'        => $socialUser['email'],
                 'company_name' => null,
-                'role_id'      => $this->defaultRoleId(), // atur sesuai default role kamu
-                'password'     => Hash::make(Str::random(32)), // dummy, karena SSO
+                'role_id'      => $this->defaultRoleId(), 
+                'password'     => Hash::make(Str::random(32)),
                 'avatar'       => $socialUser['avatar'] ?? null,
                 'provider'     => $provider,
                 'provider_id'  => $socialUser['id'] ?? null,
-                'email_verified_at' => now(),  // biasanya email dari Google/Apple sudah terverifikasi
+                'email_verified_at' => now(),  
             ]);
         } else {
-            // Update info SSO bila kosong
             $user->forceFill([
                 'avatar'      => $user->avatar ?: ($socialUser['avatar'] ?? null),
                 'provider'    => $user->provider ?: $provider,
@@ -138,18 +134,12 @@ class AuthController extends Controller
 
     private function defaultRoleId(): int
     {
-        // ganti dengan role default di sistemmu
-        return 2; // mis. "Member"
+        return 2;
     }
 
     private function getGoogleUser(Request $request): array
     {
-        // Prefer id_token jika dikirim FE; kalau tidak ada, pakai access_token
         if ($idToken = $request->string('id_token')->toString()) {
-            // Socialite Google support userFromToken? Kita pakai userFromToken dengan id_token atau akses token
-            // Cara robust: gunakan Google client untuk verify id_token.
-            // Namun SocialiteProviders Google cukup pakai access token; kalau FE hanya punya id_token,
-            // kamu bisa validasi pakai Google PHP Client. Untuk ringkas, kita coba pakai Socialite:
             $googleUser = Socialite::driver('google')->stateless()->userFromToken($idToken);
         } elseif ($accessToken = $request->string('access_token')->toString()) {
             $googleUser = Socialite::driver('google')->stateless()->userFromToken($accessToken);

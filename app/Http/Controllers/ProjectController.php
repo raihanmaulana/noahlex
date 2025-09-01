@@ -18,25 +18,42 @@ class ProjectController extends Controller
         $this->middleware('permission:upload_edit')->only('update');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $projects = Project::with([
-            'type',
-            'status',
-            'manager',
-            'metadata.disciplineUser',
-            'assignments.user',
-            'assignments.role',
-            'folders'
-        ])
-            ->where('isDeleted', false)
-            ->get();
+        $projects = Project::where('isDeleted', false)
+            ->paginate(10);
+
+
+        $data = $projects->map(function ($project) {
+            return [
+                'name'     => $project->name,
+                'sizeMw'   => $this->normalizeSize($project->size),
+                'city'     => $project->city,
+                'state'    => $project->state,
+                'country'  => $project->country,
+                'progress' => $project->progress ?? 0,
+                'image'    => $project->image_url ?? null,
+            ];
+        });
 
         return response()->json([
-            'success' => true,
-            'message' => 'Project list retrieved successfully.',
-            'data' => $projects
+            'success'    => true,
+            'message'    => 'Project list retrieved successfully.',
+            'data'       => $data,
+            'pagination' => [
+                'current_page' => $projects->currentPage(),
+                'per_page'     => $projects->perPage(),
+                'total'        => $projects->total(),
+                'last_page'    => $projects->lastPage(),
+            ],
         ]);
+    }
+
+
+    private function normalizeSize($size)
+    {
+        if (!$size) return null;
+        return (int) filter_var($size, FILTER_SANITIZE_NUMBER_INT);
     }
 
     public function store(Request $request)
@@ -290,6 +307,28 @@ class ProjectController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Project deleted successfully.'
+        ]);
+    }
+
+    public function updateProgress(Request $request, $id)
+    {
+        $request->validate([
+            'progress' => 'required|integer|min:0|max:100',
+        ]);
+
+        $project = Project::findOrFail($id);
+
+        $project->progress = $request->progress;
+        $project->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project progress updated successfully.',
+            'data' => [
+                'id'       => $project->id,
+                'name'     => $project->name,
+                'progress' => $project->progress,
+            ]
         ]);
     }
 }

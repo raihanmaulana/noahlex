@@ -99,7 +99,8 @@ class ProjectDocumentController extends Controller
                 'vendor_id'      => 'nullable|exists:vendors,id',
                 'name'           => 'required|string',
                 'status_id'      => 'nullable|string',
-                'tags'           => 'nullable|array',
+                'tags' => 'nullable|array',
+                'tags.*' => 'string',
                 'revision_notes' => 'nullable|string',
                 'document'       => 'required|file|mimes:pdf,xlsx,xls,doc,docx|max:10240',
             ]);
@@ -196,7 +197,8 @@ class ProjectDocumentController extends Controller
                 'project_id'     => 'required|exists:projects,id',
                 'name'           => 'required|string',
                 'status_id'      => 'nullable|string',
-                'tags'           => 'nullable|array',
+                'tags' => 'nullable|array',
+                'tags.*' => 'string',
                 'revision_notes' => 'nullable|string',
                 'document'       => 'required|file|mimes:pdf,xlsx,xls,doc,docx|max:10240',
             ]);
@@ -312,7 +314,8 @@ class ProjectDocumentController extends Controller
                 'id'       => 'required|integer|exists:project_documents,id',
                 'name'     => 'sometimes|string',
                 'status'   => 'sometimes|string',
-                'tags'     => 'nullable|string',
+                'tags' => 'nullable|array',
+                'tags.*' => 'string',
                 'version'  => 'nullable|string',
                 'document' => 'nullable|file|mimes:pdf,xlsx,xls,doc,docx,dwg|max:10240',
             ]);
