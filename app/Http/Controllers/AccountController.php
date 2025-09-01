@@ -183,7 +183,6 @@ class AccountController extends Controller
             ], 401);
         }
 
-        // Bentuk response yang rapi & aman (tanpa field sensitif)
         $data = [
             'id'             => $user->id,
             'name'           => $user->name,
@@ -205,7 +204,7 @@ class AccountController extends Controller
             ] : null,
         ];
 
-        // Sukses → kembalikan data apa adanya (tanpa code/message)
+
         return response()->json($data);
     }
 }

@@ -2,33 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Webhook;
-use Illuminate\Validation\Rule;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
+use Illuminate\Validation\Rule;
 
 class BillingController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
-        // 1. Validasi input dari frontend
+        
         $request->validate([
             'price_key' => [
                 'required',
                 'string',
-                // Pastikan 'price_key' yang dikirim valid dan ada di file config kita
+                
                 Rule::in(array_keys(config('stripe.prices'))),
             ],
         ]);
 
-        // 2. Ambil Price ID dari config berdasarkan key yang divalidasi
+        
         $priceId = config('stripe.prices.' . $request->input('price_key'));
 
         $user = auth()->user();
 
-        // 3. Cek atau buat Stripe Customer ID untuk user
-        // Ini memastikan 1 user = 1 customer di Stripe
+        
+        
         $stripeCustomerId = $user->stripe_customer_id;
         if (!$stripeCustomerId) {
             $customer = \Stripe\Customer::create(['email' => $user->email]);
@@ -36,18 +37,18 @@ class BillingController extends Controller
             $user->update(['stripe_customer_id' => $stripeCustomerId]);
         }
 
-        // 4. Buat Sesi Checkout dengan harga dinamis
+        
         $session = Session::create([
             'payment_method_types' => ['card'],
             'mode' => 'subscription',
-            'customer' => $stripeCustomerId, // Gunakan customer ID yang sudah ada
+            'customer' => $stripeCustomerId, 
             'line_items' => [[
-                'price' => $priceId, // <-- Harga sekarang dinamis!
+                'price' => $priceId, 
                 'quantity' => 1,
             ]],
             'success_url' => url('/billing/success?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => url('/billing/cancel'),
-            // 'customer_email' tidak perlu lagi jika sudah menggunakan 'customer'
+            
         ]);
 
         return response()->json(['id' => $session->id]);
@@ -68,7 +69,7 @@ class BillingController extends Controller
     {
         $payload = $request->getContent();
         $sigHeader = $request->server('HTTP_STRIPE_SIGNATURE');
-        $endpointSecret = env('STRIPE_WEBHOOK_SECRET'); // dari Stripe Dashboard
+        $endpointSecret = env('STRIPE_WEBHOOK_SECRET'); 
 
         try {
             $event = Webhook::constructEvent(
@@ -84,8 +85,8 @@ class BillingController extends Controller
 
         switch ($event->type) {
             case 'checkout.session.completed':
-                // Logika saat user pertama kali subscribe
-                $user = \App\Models\User::where('email', $session->customer_email)->first();
+                
+                $user = User::where('email', $session->customer_email)->first();
                 if ($user) {
                     $user->update([
                         'subscription_status' => 'active',
@@ -96,16 +97,16 @@ class BillingController extends Controller
                 break;
 
             case 'invoice.payment_succeeded':
-                // Logika saat subscription berhasil diperpanjang
-                $user = \App\Models\User::where('stripe_subscription_id', $session->subscription)->first();
+                
+                $user = User::where('stripe_subscription_id', $session->subscription)->first();
                 if ($user) {
                     $user->update(['subscription_status' => 'active']);
                 }
                 break;
 
             case 'customer.subscription.deleted':
-                // Logika saat subscription dibatalkan atau berakhir
-                $user = \App\Models\User::where('stripe_subscription_id', $session->id)->first();
+                
+                $user = User::where('stripe_subscription_id', $session->id)->first();
                 if ($user) {
                     $user->update(['subscription_status' => 'canceled']);
                 }

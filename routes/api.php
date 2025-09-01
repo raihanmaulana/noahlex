@@ -15,6 +15,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectStatusController;
 use App\Http\Controllers\FolderTemplateController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProjectDocumentController;
 use App\Http\Controllers\ProjectAssignmentController;
 use App\Http\Controllers\ProjectDocumentAccessController;
@@ -55,6 +56,7 @@ Route::middleware('auth:api')->group(function () {
     //Dashboard
     Route::prefix('dashboard')->controller(DashboardController::class)->group(function () {
         Route::get('/', 'index');
+        Route::get('/pipeline', 'pipeline');
     });
 
     // Roles
@@ -63,7 +65,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}',  'detail');
         Route::put('/', 'update');
-        Route::delete('/{id}', 'destroy'); 
+        Route::delete('/{id}', 'destroy');
         Route::post('/update-permission', 'updatePermission');
     });
 
@@ -73,7 +75,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}', 'detail');
         Route::put('/', 'update');
-        Route::delete('/{id}', 'destroy'); 
+        Route::delete('/{id}', 'destroy');
         Route::get('/template/download',  'downloadTemplate');
         Route::post('/preview-import',  'previewImport');
         Route::post('/import',  'importUsers');
@@ -96,8 +98,9 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', 'store');
         Route::get('/{id}', 'detail');
         Route::put('/', 'update');
-        Route::delete('/{id}', 'destroy'); 
+        Route::delete('/{id}', 'destroy');
         Route::post('/bulk-assign', 'bulkAssignUsersToProjects');
+        Route::put('/{id}/progress', 'updateProgress');
     });
 
     // Project Document
@@ -163,7 +166,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/single',  'updateSingle');
         Route::get('/{id}',  'detail');
         Route::put('/',  'update');
-        Route::delete('/{id}',  'destroy'); 
+        Route::delete('/{id}',  'destroy');
     });
 
     // Notification
@@ -183,6 +186,14 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/create-checkout-session',  'createCheckoutSession');
         Route::get('/billing/success',  'success');
         Route::get('/billing/cancel',  'cancel');
+    });
+
+    Route::prefix('permission')->controller(PermissionController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::put('/', 'update');
+        Route::get('/{id}', 'detail');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::post('/stripe/webhook', [BillingController::class, 'webhook']);

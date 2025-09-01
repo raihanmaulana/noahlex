@@ -20,21 +20,21 @@ class DashboardController extends Controller
 
 
         $activeProjectsCount = Project::where('isDeleted', false)
-            ->where('status_id', '!=', 6)
+            ->where('stage_id', '!=', 6)
             ->count();
 
         $activeProjectsLastMonth = Project::where('isDeleted', false)
-            ->where('status_id', '!=', 6)
+            ->where('stage_id', '!=', 6)
             ->whereBetween('created_at', [$startOfLastMonth, $endOfLastMonth])
             ->count();
 
 
         $completedProjectsCount = Project::where('isDeleted', false)
-            ->where('status_id', 6)
+            ->where('stage_id', 6)
             ->count();
 
         $completedProjectsLastMonth = Project::where('isDeleted', false)
-            ->where('status_id', 6)
+            ->where('stage_id', 6)
             ->whereBetween('created_at', [$startOfLastMonth, $endOfLastMonth])
             ->count();
 
@@ -64,7 +64,7 @@ class DashboardController extends Controller
 
             $searchResults = Project::where('isDeleted', false)
                 ->where('name', 'like', '%' . $search . '%')
-                ->get(['id', 'name', 'location', 'size', 'cover', 'status_id', 'created_at']);
+                ->get(['id', 'name', 'location', 'size', 'cover', 'stage_id', 'created_at']);
 
             $latestProjects = [];
         } else {
@@ -73,7 +73,7 @@ class DashboardController extends Controller
             $latestProjects = Project::where('isDeleted', false)
                 ->latest()
                 ->take(6)
-                ->get(['id', 'name', 'location', 'size', 'cover', 'status_id', 'created_at']);
+                ->get(['id', 'name', 'location', 'size', 'cover', 'stage_id', 'created_at']);
         }
 
         return response()->json([
@@ -103,30 +103,38 @@ class DashboardController extends Controller
 
     public function pipeline()
     {
-        
         $types = ProjectType::where('isDeleted', false)->pluck('name', 'id');
 
         
         $locations = Project::where('isDeleted', false)
-            ->whereNotNull('location') 
-            ->get(['id', 'name', 'type_id', 'size', 'location']);
+            ->whereNotNull('location')
+            ->get(['name', 'location'])
+            ->map(function ($p) {
+                [$lat, $lng] = explode(',', $p->location);
+                return [
+                    'name' => $p->name,
+                    'location' => [
+                        'lat' => (float) trim($lat),
+                        'lng' => (float) trim($lng),
+                    ]
+                ];
+            });
 
-        $totalLocations = $locations->count();
-
+        
         $breakdownByStageRaw = Project::select(
             'stage_id',
             'type_id',
-            DB::raw('SUM(REPLACE(size, " MW", "")) as total_mw')
+            DB::raw('SUM(size) as total_mw')
         )
             ->where('isDeleted', false)
             ->groupBy('stage_id', 'type_id')
             ->get();
 
-        $breakdownByStage = [];
+        $projectStage = [];
         foreach (ProjectStage::all() as $stage) {
-            $row = ['stage' => $stage->name];
+            $row = [];
             foreach ($types as $typeId => $typeName) {
-                $row[strtolower($typeName)] = 0; 
+                $row[strtolower($typeName)] = 0;
             }
             foreach ($breakdownByStageRaw as $item) {
                 if ($item->stage_id == $stage->id) {
@@ -134,26 +142,25 @@ class DashboardController extends Controller
                     $row[$typeName] = (float) $item->total_mw;
                 }
             }
-            $breakdownByStage[] = $row;
+            $projectStage[strtolower($stage->name)] = $row;
         }
 
         
         $breakdownByYearRaw = Project::select(
             DB::raw('YEAR(cod_date) as cod_year'),
             'type_id',
-            DB::raw('SUM(REPLACE(size, " MW", "")) as total_mw')
+            DB::raw('SUM(size) as total_mw')
         )
             ->where('isDeleted', false)
             ->whereNotNull('cod_date')
             ->groupBy(DB::raw('YEAR(cod_date)'), 'type_id')
             ->get();
 
-        $years = $breakdownByYearRaw->pluck('cod_year')->unique()->sort();
-        $breakdownByYear = [];
-        foreach ($years as $year) {
-            $row = ['year' => $year];
+        $codYear = [];
+        foreach ($breakdownByYearRaw->pluck('cod_year')->unique()->sort() as $year) {
+            $row = [];
             foreach ($types as $typeId => $typeName) {
-                $row[strtolower($typeName)] = 0; 
+                $row[strtolower($typeName)] = 0;
             }
             foreach ($breakdownByYearRaw as $item) {
                 if ($item->cod_year == $year) {
@@ -161,15 +168,14 @@ class DashboardController extends Controller
                     $row[$typeName] = (float) $item->total_mw;
                 }
             }
-            $breakdownByYear[] = $row;
+            $codYear[$year] = $row;
         }
 
         return response()->json([
             'success' => true,
-            'total_locations' => $totalLocations,
             'locations' => $locations,
-            'breakdown_by_stage' => $breakdownByStage,
-            'breakdown_by_cod_year' => $breakdownByYear
+            'projectStage' => $projectStage,
+            'codYear' => $codYear
         ]);
     }
 }
